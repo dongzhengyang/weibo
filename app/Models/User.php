@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable\sync;
 
 class User extends Authenticatable
 {
@@ -65,29 +66,34 @@ class User extends Authenticatable
     }
     
     
-    public function followers(){
-        $this->belongsToMany(User::class, 'followers', 'user_id', 'follower_id');
+    public function followers()
+    {
+        return $this->belongsToMany(User::Class, 'followers', 'user_id', 'follower_id');
+    }
+
+    public function followings()
+    {
+        return $this->belongsToMany(User::Class, 'followers', 'follower_id', 'user_id');
     }
     
-    public function followings(){
-        $this->belongsToMany(User::class, 'followers', 'follower_id', 'user_id');
-    }
-    
-    public function follow($user_ids){
-        if(!is_array($user_ids)){
-            $user_ids = compact($user_ids);
+    public function follow($user_ids)
+    {
+        if ( ! is_array($user_ids)) {
+            $user_ids = compact('user_ids');
         }
-        $this->followings()->sync($user_ids,false);
+        $this->followings()->sync($user_ids, false);
     }
-    
-    public function unfollow($user_ids){
-        if(!is_array($user_ids)){
-            $user_ids = compact($user_ids);
+
+    public function unfollow($user_ids)
+    {
+        if ( ! is_array($user_ids)) {
+            $user_ids = compact('user_ids');
         }
         $this->followings()->detach($user_ids);
     }
     
-    public function isFollowing($user_id){
-        return $this->followings()->contains($user_id);
+     public function isFollowing($user_id)
+    {
+        return $this->followings->contains($user_id);
     }
 }
